@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import base64
 import anthropic
@@ -44,7 +45,7 @@ Your task:
 5. Mix question types: definition-based, application-based, reaction-based, numerical (if applicable).
 6. Make distractors plausible but clearly wrong to an informed student.
 
-Return ONLY a valid JSON object, no markdown, no explanation, no preamble. Format:
+Return ONLY a valid JSON object, no markdown, no explanation, no preamble, no extra text. Format:
 {{
   "questions": [
     {{
@@ -81,7 +82,12 @@ Return ONLY a valid JSON object, no markdown, no explanation, no preamble. Forma
         raw_text = "".join(
             block.text for block in response.content if hasattr(block, "text")
         )
-        clean = raw_text.replace("```json", "").replace("```", "").strip()
+
+        match = re.search(r'\{.*\}', raw_text, re.DOTALL)
+        if not match:
+            return jsonify({"error": "AI returned invalid format. Please try again."}), 500
+        clean = match.group(0)
+
         parsed = json.loads(clean)
 
         return jsonify({
