@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin — DPP Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #F7F5F0; --surface: #fff; --border: #E2DDD6; --text: #1A1714;
+    --text-sec: #6B6560; --accent: #2D5016; --accent-light: #EDF3E8;
+    --danger: #8B2020; --danger-bg: #FDF0F0; --success: #1A5C1A; --success-bg: #F0F7F0;
+  }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); padding: 2rem 1rem; }
+  .container { max-width: 680px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 600; margin-bottom: 4px; }
+  .sub { font-size: 13px; color: var(--text-sec); margin-bottom: 2rem; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1.5rem; margin-bottom: 1rem; }
+  .card-title { font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-sec); margin-bottom: 1rem; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 12px; }
+  .field label { font-size: 12px; font-weight: 500; color: var(--text-sec); }
+  input, select { font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); outline: none; width: 100%; }
+  input:focus, select:focus { border-color: var(--accent); background: white; }
+  .upload-zone { border: 1.5px dashed var(--border); border-radius: 10px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--bg); }
+  .upload-zone:hover, .upload-zone.has-file { border-color: var(--accent); background: var(--accent-light); }
+  .upload-zone p { font-size: 14px; color: var(--text-sec); }
+  .btn { width: 100%; padding: 12px; background: var(--accent); color: white; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; transition: opacity 0.15s; }
+  .btn:hover:not(:disabled) { opacity: 0.88; }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .chapter-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 8px; background: var(--bg); }
+  .chapter-info { font-size: 14px; }
+  .chapter-info .name { font-weight: 500; }
+  .chapter-info .meta { font-size: 12px; color: var(--text-sec); margin-top: 2px; }
+  .btn-delete { background: var(--danger-bg); color: var(--danger); border: 1px solid #E2B0B0; border-radius: 6px; padding: 5px 12px; font-size: 12px; cursor: pointer; font-family: 'DM Sans', sans-serif; }
+  .btn-delete:hover { opacity: 0.8; }
+  .msg { padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-top: 10px; }
+  .msg.success { background: var(--success-bg); color: var(--success); }
+  .msg.error { background: var(--danger-bg); color: var(--danger); }
+  .empty { text-align: center; padding: 2rem; color: var(--text-sec); font-size: 14px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Admin Panel</h1>
+  <p class="sub">Upload and manage chapter PDFs for DPP Generator</p>
+
+  <div class="card">
+    <div class="card-title">Upload New Chapter</div>
+    <div class="field">
+      <label>Admin Password</label>
+      <input type="password" id="password" placeholder="Enter admin password">
+    </div>
+    <div class="grid-2">
+      <div class="field" style="margin-bottom:0">
+        <label>Chapter Number</label>
+        <input type="number" id="chapter-number" placeholder="e.g. 1" min="1">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>Class</label>
+        <select id="class-num">
+          <option value="9">Class 9</option>
+          <option value="10">Class 10</option>
+          <option value="11" selected>Class 11</option>
+          <option value="12">Class 12</option>
+        </select>
+      </div>
+    </div>
+    <div class="field">
+      <label>Chapter Name</label>
+      <input type="text" id="chapter-name" placeholder="e.g. Some Basic Concepts of Chemistry">
+    </div>
+    <div class="grid-2">
+      <div class="field" style="margin-bottom:0">
+        <label>Default From Page</label>
+        <input type="number" id="page-from" placeholder="e.g. 1" min="1">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>Default To Page</label>
+        <input type="number" id="page-to" placeholder="e.g. 30" min="1">
+      </div>
+    </div>
+    <div class="field">
+      <label>Chapter PDF</label>
+      <div class="upload-zone" id="upload-zone" onclick="document.getElementById('pdf-input').click()">
+        <p id="upload-label">Click to upload PDF</p>
+      </div>
+      <input type="file" id="pdf-input" accept=".pdf" style="display:none">
+    </div>
+    <button class="btn" id="upload-btn" onclick="uploadChapter()">Upload Chapter</button>
+    <div id="upload-msg"></div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Uploaded Chapters</div>
+    <div id="chapters-list"><div class="empty">Loading...</div></div>
+  </div>
+</div>
+
+<script>
+  let pdfFile = null;
+
+  document.getElementById('pdf-input').addEventListener('change', function(e) {
+    pdfFile = e.target.files[0];
+    if (!pdfFile) return;
+    document.getElementById('upload-zone').classList.add('has-file');
+    document.getElementById('upload-label').textContent = pdfFile.name;
+  });
+
+  async function uploadChapter() {
+    const btn = document.getElementById('upload-btn');
+    const msgDiv = document.getElementById('upload-msg');
+    msgDiv.innerHTML = '';
+
+    const password = document.getElementById('password').value;
+    const chapterNumber = document.getElementById('chapter-number').value;
+    const chapterName = document.getElementById('chapter-name').value.trim();
+    const pageFrom = document.getElementById('page-from').value;
+    const pageTo = document.getElementById('page-to').value;
+    const classNum = document.getElementById('class-num').value;
+
+    if (!password || !chapterNumber || !chapterName || !pdfFile) {
+      msgDiv.innerHTML = '<div class="msg error">Please fill all fields and upload a PDF.</div>';
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Uploading...';
+
+    const formData = new FormData();
+    formData.append('password', password);
+    formData.append('chapter_number', chapterNumber);
+    formData.append('chapter_name', chapterName);
+    formData.append('default_page_from', pageFrom);
+    formData.append('default_page_to', pageTo);
+    formData.append('class_num', classNum);
+    formData.append('pdf', pdfFile);
+
+    try {
+      const res = await fetch('/api/upload-chapter', { method: 'POST', body: formData });
+      const data = await res.json();
+      if (data.success) {
+        msgDiv.innerHTML = `<div class="msg success">${data.message}</div>`;
+        pdfFile = null;
+        document.getElementById('upload-zone').classList.remove('has-file');
+        document.getElementById('upload-label').textContent = 'Click to upload PDF';
+        document.getElementById('pdf-input').value = '';
+        document.getElementById('chapter-number').value = '';
+        document.getElementById('chapter-name').value = '';
+        document.getElementById('page-from').value = '';
+        document.getElementById('page-to').value = '';
+        loadChapters();
+      } else {
+        msgDiv.innerHTML = `<div class="msg error">${data.error}</div>`;
+      }
+    } catch (err) {
+      msgDiv.innerHTML = `<div class="msg error">Upload failed: ${err.message}</div>`;
+    }
+
+    btn.disabled = false;
+    btn.textContent = 'Upload Chapter';
+  }
+
+  async function loadChapters() {
+    const list = document.getElementById('chapters-list');
+    try {
+      const res = await fetch('/api/chapters');
+      const data = await res.json();
+      if (!data.chapters || data.chapters.length === 0) {
+        list.innerHTML = '<div class="empty">No chapters uploaded yet.</div>';
+        return;
+      }
+      list.innerHTML = data.chapters.map(ch => `
+        <div class="chapter-item">
+          <div class="chapter-info">
+            <div class="name">Ch. ${ch.chapter_number} — ${ch.chapter_name}</div>
+            <div class="meta">Class ${ch.class_num} · Pages ${ch.default_page_from}–${ch.default_page_to}</div>
+          </div>
+          <button class="btn-delete" onclick="deleteChapter(${ch.id}, '${ch.chapter_name}')">Delete</button>
+        </div>
+      `).join('');
+    } catch (err) {
+      list.innerHTML = '<div class="empty">Failed to load chapters.</div>';
+    }
+  }
+
+  async function deleteChapter(id, name) {
+    const password = document.getElementById('password').value;
+    if (!password) { alert('Enter admin password first'); return; }
+    if (!confirm(`Delete "${name}"?`)) return;
+    try {
+      const res = await fetch(`/api/delete-chapter/${id}?password=${encodeURIComponent(password)}`, { method: 'DELETE' });
+      const data = await res.json();
+      if (data.success) loadChapters();
+      else alert(data.error);
+    } catch (err) {
+      alert('Delete failed');
+    }
+  }
+
+  loadChapters();
+</script>
+</body>
+</html>
