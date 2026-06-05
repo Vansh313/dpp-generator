@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DPP Generator — Vansh Craft</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F7F5F0;
+    --surface: #FFFFFF;
+    --border: #E2DDD6;
+    --border-hover: #C8C2B8;
+    --text-primary: #1A1714;
+    --text-secondary: #6B6560;
+    --text-muted: #9B958F;
+    --accent: #2D5016;
+    --accent-light: #EDF3E8;
+    --accent-text: #2D5016;
+    --danger: #8B2020;
+    --danger-bg: #FDF0F0;
+    --success: #1A5C1A;
+    --success-bg: #F0F7F0;
+    --shadow: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,0.08), 0 2px 4px rgba(0,0,0,0.04);
+  }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    min-height: 100vh;
+    padding: 2rem 1rem;
+  }
+
+  .container {
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 2rem;
+  }
+
+  .brand-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .brand-icon svg { width: 18px; height: 18px; fill: white; }
+
+  .brand-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text-primary);
+  }
+
+  .brand-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    box-shadow: var(--shadow);
+  }
+
+  .card-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 1rem;
+  }
+
+  .upload-zone {
+    border: 1.5px dashed var(--border-hover);
+    border-radius: 10px;
+    padding: 2.5rem 1rem;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: var(--bg);
+  }
+
+  .upload-zone:hover { border-color: var(--accent); background: var(--accent-light); }
+
+  .upload-zone.has-file {
+    border-style: solid;
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .upload-icon {
+    width: 44px;
+    height: 44px;
+    margin: 0 auto 12px;
+    background: var(--border);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .upload-zone.has-file .upload-icon { background: var(--accent); }
+  .upload-zone.has-file .upload-icon svg { fill: white; }
+
+  .upload-icon svg { width: 22px; height: 22px; fill: var(--text-secondary); }
+
+  .upload-title { font-size: 14px; font-weight: 500; color: var(--text-primary); margin-bottom: 4px; }
+  .upload-sub { font-size: 12px; color: var(--text-muted); }
+
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
+
+  input[type="number"], input[type="text"], select {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    padding: 9px 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--bg);
+    color: var(--text-primary);
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+
+  input:focus, select:focus { border-color: var(--accent); background: white; }
+
+  .count-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    background: var(--bg);
+  }
+
+  .count-card:hover { border-color: var(--border-hover); background: white; }
+
+  .count-card.active {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  .count-card .num {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--text-primary);
+    line-height: 1;
+  }
+
+  .count-card.active .num { color: var(--accent-text); }
+  .count-card .lbl { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
+  .btn-generate {
+    width: 100%;
+    padding: 13px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+
+  .btn-generate:hover:not(:disabled) { opacity: 0.88; }
+  .btn-generate:active:not(:disabled) { transform: scale(0.99); }
+  .btn-generate:disabled { opacity: 0.35; cursor: not-allowed; }
+
+  .btn-generate svg { width: 18px; height: 18px; fill: white; }
+
+  .loading-panel { display: none; text-align: center; padding: 3rem 1rem; }
+
+  .spinner {
+    width: 32px;
+    height: 32px;
+    border: 2.5px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loading-text { font-size: 14px; color: var(--text-secondary); }
+  .loading-sub { font-size: 12px; color: var(--text-muted); margin-top: 6px; }
+
+  .dpp-panel { display: none; }
+
+  .dpp-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--text-primary);
+  }
+
+  .dpp-top h2 { font-size: 20px; font-weight: 600; }
+  .dpp-meta { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
+  .dpp-meta span { margin-right: 14px; }
+
+  .dpp-badge {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 4px 10px;
+    border-radius: 6px;
+    background: var(--accent-light);
+    color: var(--accent-text);
+    white-space: nowrap;
+  }
+
+  .instructions {
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 1.25rem;
+    border-left: 3px solid var(--accent);
+  }
+
+  .question {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.1rem;
+    margin-bottom: 10px;
+    background: var(--surface);
+    transition: border-color 0.15s;
+  }
+
+  .q-text {
+    font-size: 14px;
+    line-height: 1.55;
+    color: var(--text-primary);
+    margin-bottom: 12px;
+  }
+
+  .q-num {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-right: 8px;
+    background: var(--bg);
+    padding: 2px 6px;
+    border-radius: 4px;
+  }
+
+  .options { display: grid; grid-template-columns: 1fr 1fr; gap: 7px; }
+
+  .option {
+    font-size: 13px;
+    color: var(--text-primary);
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.12s;
+    line-height: 1.4;
+    background: var(--bg);
+  }
+
+  .option:hover:not(.locked) { border-color: var(--border-hover); background: white; }
+  .option.correct { background: var(--success-bg); border-color: var(--success); color: var(--success); }
+  .option.wrong { background: var(--danger-bg); border-color: var(--danger); color: var(--danger); }
+  .option.locked { cursor: default; }
+
+  .explanation {
+    display: none;
+    font-size: 12px;
+    margin-top: 10px;
+    padding: 8px 12px;
+    background: var(--success-bg);
+    border-radius: 8px;
+    color: var(--success);
+    border-left: 3px solid var(--success);
+  }
+
+  .answer-key-section {
+    border-top: 1px solid var(--border);
+    margin-top: 1.25rem;
+    padding-top: 1rem;
+    display: none;
+  }
+
+  .answer-key-section h4 { font-size: 13px; font-weight: 500; color: var(--text-secondary); margin-bottom: 10px; }
+
+  .ans-grid { display: flex; flex-wrap: wrap; gap: 6px; }
+
+  .ans-item {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    padding: 4px 10px;
+    border-radius: 6px;
+    color: var(--text-secondary);
+  }
+
+  .action-bar { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 1.25rem; }
+
+  .btn-action {
+    padding: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .btn-action svg { width: 15px; height: 15px; }
+
+  .btn-print { background: var(--accent); color: white; border: none; }
+  .btn-print:hover { opacity: 0.88; }
+  .btn-print svg { fill: white; }
+
+  .btn-ans { background: var(--bg); color: var(--text-primary); border: 1px solid var(--border); }
+  .btn-ans:hover { border-color: var(--border-hover); background: white; }
+  .btn-ans svg { fill: var(--text-secondary); }
+
+  .btn-new { background: var(--bg); color: var(--text-primary); border: 1px solid var(--border); }
+  .btn-new:hover { border-color: var(--border-hover); background: white; }
+  .btn-new svg { fill: var(--text-secondary); }
+
+  .error-box {
+    background: var(--danger-bg);
+    border: 1px solid #E2B0B0;
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    color: var(--danger);
+    margin-top: 10px;
+  }
+
+  @media (max-width: 540px) {
+    .grid-2, .options { grid-template-columns: 1fr; }
+    .action-bar { grid-template-columns: 1fr; }
+    .count-card .num { font-size: 18px; }
+  }
+
+  @media print {
+    body { background: white; padding: 1rem; }
+    .brand, #setup-panel, .action-bar, .btn-ans, .btn-new { display: none !important; }
+    .dpp-panel { display: block !important; }
+    .card { box-shadow: none; border: none; padding: 0; }
+    .option { cursor: default; }
+    .explanation { display: none !important; }
+    .answer-key-section { display: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="brand">
+    <div class="brand-icon">
+      <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+    </div>
+    <div>
+      <div class="brand-name">DPP Generator</div>
+      <div class="brand-sub">AI-powered by Claude · Chemistry Edition</div>
+    </div>
+  </div>
+
+  <div id="setup-panel">
+    <div class="card">
+      <div class="card-label">Upload PDF</div>
+      <div class="upload-zone" id="upload-zone" onclick="document.getElementById('pdf-input').click()">
+        <div class="upload-icon">
+          <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+        </div>
+        <div class="upload-title" id="upload-label">Click to upload book PDF</div>
+        <div class="upload-sub">NCERT, coaching material, any chemistry textbook</div>
+      </div>
+      <input type="file" id="pdf-input" accept=".pdf" style="display:none">
+    </div>
+
+    <div class="card">
+      <div class="card-label">Page Range & Topic</div>
+      <div class="grid-2">
+        <div class="field">
+          <label>From page</label>
+          <input type="number" id="page-from" placeholder="e.g. 34" min="1">
+        </div>
+        <div class="field">
+          <label>To page</label>
+          <input type="number" id="page-to" placeholder="e.g. 44" min="1">
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="field">
+          <label>Chapter / Topic</label>
+          <input type="text" id="topic" placeholder="e.g. Chemical Bonding">
+        </div>
+        <div class="field">
+          <label>Class</label>
+          <select id="class-sel">
+            <option value="9">Class 9</option>
+            <option value="10">Class 10</option>
+            <option value="11" selected>Class 11</option>
+            <option value="12">Class 12</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="card-label" style="margin-bottom:10px;">Number of questions</div>
+      <div class="grid-3">
+        <div class="count-card" data-n="5" onclick="selectCount(5)">
+          <div class="num">5</div>
+          <div class="lbl">Quick test</div>
+        </div>
+        <div class="count-card active" data-n="10" onclick="selectCount(10)">
+          <div class="num">10</div>
+          <div class="lbl">Standard DPP</div>
+        </div>
+        <div class="count-card" data-n="15" onclick="selectCount(15)">
+          <div class="num">15</div>
+          <div class="lbl">Full practice</div>
+        </div>
+      </div>
+
+      <div id="error-msg"></div>
+    </div>
+
+    <button class="btn-generate" id="gen-btn" onclick="generateDPP()" disabled>
+      <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      Generate DPP
+    </button>
+  </div>
+
+  <div class="card loading-panel" id="loading-panel">
+    <div class="spinner"></div>
+    <div class="loading-text" id="loading-text">Reading your PDF...</div>
+    <div class="loading-sub">Claude is generating questions from pages <span id="loading-pages"></span></div>
+  </div>
+
+  <div class="card dpp-panel" id="dpp-panel">
+    <div class="dpp-top">
+      <div>
+        <h2 id="dpp-title">Daily Practice Problem</h2>
+        <div class="dpp-meta">
+          <span id="dpp-class"></span>
+          <span id="dpp-topic"></span>
+          <span id="dpp-pages"></span>
+        </div>
+      </div>
+      <div class="dpp-badge" id="dpp-count"></div>
+    </div>
+
+    <div class="instructions">
+      Each question carries 4 marks. Negative marking: −1 for wrong answer. Attempt all questions. Time: 15 minutes.
+    </div>
+
+    <div id="questions-container"></div>
+
+    <div class="answer-key-section" id="answer-key-section">
+      <h4>Answer Key</h4>
+      <div class="ans-grid" id="answer-key"></div>
+    </div>
+
+    <div class="action-bar">
+      <button class="btn-action btn-print" onclick="window.print()">
+        <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Print / PDF
+      </button>
+      <button class="btn-action btn-ans" id="ans-toggle" onclick="toggleAnswerKey()">
+        <svg viewBox="0 0 24 24"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg>
+        Answer Key
+      </button>
+      <button class="btn-action btn-new" onclick="resetApp()">
+        <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        New DPP
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  let selectedCount = 10;
+  let questions = [];
+  let answered = {};
+  let pdfFile = null;
+
+  document.getElementById('pdf-input').addEventListener('change', function(e) {
+    pdfFile = e.target.files[0];
+    if (!pdfFile) return;
+    const zone = document.getElementById('upload-zone');
+    zone.classList.add('has-file');
+    document.getElementById('upload-label').textContent = pdfFile.name;
+    checkReady();
+  });
+
+  function selectCount(n) {
+    selectedCount = n;
+    document.querySelectorAll('.count-card').forEach(c => c.classList.remove('active'));
+    document.querySelector(`.count-card[data-n="${n}"]`).classList.add('active');
+  }
+
+  function checkReady() {
+    const f = document.getElementById('page-from').value;
+    const t = document.getElementById('page-to').value;
+    document.getElementById('gen-btn').disabled = !(pdfFile && f && t);
+  }
+
+  document.getElementById('page-from').addEventListener('input', checkReady);
+  document.getElementById('page-to').addEventListener('input', checkReady);
+
+  const loadingMsgs = [
+    'Reading your PDF...',
+    'Identifying key concepts...',
+    'Crafting MCQ questions...',
+    'Building distractors...',
+    'Almost ready...'
+  ];
+
+  async function generateDPP() {
+    const pageFrom = document.getElementById('page-from').value;
+    const pageTo = document.getElementById('page-to').value;
+    const topic = document.getElementById('topic').value.trim() || 'Chemistry';
+    const classNum = document.getElementById('class-sel').value;
+    const errDiv = document.getElementById('error-msg');
+    errDiv.innerHTML = '';
+
+    if (parseInt(pageFrom) >= parseInt(pageTo)) {
+      errDiv.innerHTML = '<div class="error-box">Page "from" must be less than page "to".</div>';
+      return;
+    }
+
+    document.getElementById('setup-panel').style.display = 'none';
+    document.getElementById('loading-panel').style.display = 'block';
+    document.getElementById('dpp-panel').style.display = 'none';
+    document.getElementById('loading-pages').textContent = `${pageFrom}–${pageTo}`;
+
+    let msgIdx = 0;
+    const msgInterval = setInterval(() => {
+      msgIdx = (msgIdx + 1) % loadingMsgs.length;
+      document.getElementById('loading-text').textContent = loadingMsgs[msgIdx];
+    }, 3500);
+
+    try {
+      const formData = new FormData();
+      formData.append('pdf', pdfFile);
+      formData.append('page_from', pageFrom);
+      formData.append('page_to', pageTo);
+      formData.append('topic', topic);
+      formData.append('class_num', classNum);
+      formData.append('count', selectedCount);
+
+      const response = await fetch('/generate', {
+        method: 'POST',
+        body: formData
+      });
+
+      clearInterval(msgInterval);
+      const data = await response.json();
+
+      if (!response.ok || data.error) {
+        throw new Error(data.error || 'Something went wrong');
+      }
+
+      questions = data.questions;
+      answered = {};
+      renderDPP(data);
+
+    } catch (err) {
+      clearInterval(msgInterval);
+      document.getElementById('setup-panel').style.display = 'block';
+      document.getElementById('loading-panel').style.display = 'none';
+      errDiv.innerHTML = `<div class="error-box">Error: ${err.message}. Please try again.</div>`;
+    }
+  }
+
+  function renderDPP(data) {
+    document.getElementById('loading-panel').style.display = 'none';
+    document.getElementById('dpp-panel').style.display = 'block';
+
+    document.getElementById('dpp-title').textContent = `Daily Practice Problem — ${data.topic}`;
+    document.getElementById('dpp-class').textContent = `Class ${data.class_num}`;
+    document.getElementById('dpp-topic').textContent = `Topic: ${data.topic}`;
+    document.getElementById('dpp-pages').textContent = `Pages: ${data.page_from}–${data.page_to}`;
+    document.getElementById('dpp-count').textContent = `${questions.length} MCQs`;
+
+    const container = document.getElementById('questions-container');
+    container.innerHTML = '';
+
+    questions.forEach((q, i) => {
+      const div = document.createElement('div');
+      div.className = 'question';
+      div.innerHTML = `
+        <div class="q-text"><span class="q-num">Q${i + 1}</span>${q.q}</div>
+        <div class="options">
+          ${q.options.map((opt, j) => {
+            const letter = ['A', 'B', 'C', 'D'][j];
+            return `<div class="option" data-q="${i}" data-letter="${letter}" onclick="selectOption(${i}, '${letter}', this)">${opt}</div>`;
+          }).join('')}
+        </div>
+        <div class="explanation" id="exp-${i}">✓ ${q.explanation}</div>
+      `;
+      container.appendChild(div);
+    });
+
+    const ansKey = document.getElementById('answer-key');
+    ansKey.innerHTML = questions.map((q, i) => `<div class="ans-item">Q${i + 1}: ${q.answer}</div>`).join('');
+    document.getElementById('answer-key-section').style.display = 'none';
+    document.getElementById('ans-toggle').textContent = 'Answer Key';
+  }
+
+  function selectOption(qIdx, letter, el) {
+    if (answered[qIdx]) return;
+    answered[qIdx] = letter;
+    const correct = questions[qIdx].answer;
+    document.querySelectorAll(`[data-q="${qIdx}"]`).forEach(opt => {
+      opt.classList.add('locked');
+      if (opt.dataset.letter === correct) opt.classList.add('correct');
+      else if (opt.dataset.letter === letter) opt.classList.add('wrong');
+    });
+    document.getElementById(`exp-${qIdx}`).style.display = 'block';
+  }
+
+  function toggleAnswerKey() {
+    const sec = document.getElementById('answer-key-section');
+    const btn = document.getElementById('ans-toggle');
+    const visible = sec.style.display === 'block';
+    sec.style.display = visible ? 'none' : 'block';
+    btn.innerHTML = visible
+      ? '<svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg> Answer Key'
+      : '<svg viewBox="0 0 24 24" style="width:15px;height:15px;fill:none;stroke:currentColor;stroke-width:2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></svg> Hide Key';
+  }
+
+  function resetApp() {
+    pdfFile = null;
+    questions = [];
+    answered = {};
+    document.getElementById('upload-zone').classList.remove('has-file');
+    document.getElementById('upload-label').textContent = 'Click to upload book PDF';
+    document.getElementById('pdf-input').value = '';
+    document.getElementById('page-from').value = '';
+    document.getElementById('page-to').value = '';
+    document.getElementById('topic').value = '';
+    document.getElementById('error-msg').innerHTML = '';
+    document.getElementById('gen-btn').disabled = true;
+    document.getElementById('dpp-panel').style.display = 'none';
+    document.getElementById('setup-panel').style.display = 'block';
+  }
+</script>
+</body>
+</html>
