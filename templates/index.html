@@ -30,17 +30,30 @@
   select:focus, input:focus { border-color: var(--accent); background: white; }
   .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
   .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+
+  /* Toggle cards */
+  .toggle-group { display: grid; gap: 8px; margin-bottom: 4px; }
+  .toggle-group.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+  .toggle-group.cols-4 { grid-template-columns: 1fr 1fr 1fr 1fr; }
+  .toggle-card { border: 1px solid var(--border); border-radius: 10px; padding: 12px 8px; text-align: center; cursor: pointer; transition: all 0.15s; background: var(--bg); }
+  .toggle-card:hover { border-color: var(--border-hover); background: white; }
+  .toggle-card.active { border-color: var(--accent); background: var(--accent-light); }
+  .toggle-card .t-icon { font-size: 18px; line-height: 1; margin-bottom: 4px; }
+  .toggle-card .t-label { font-size: 12px; font-weight: 500; color: var(--text-primary); }
+  .toggle-card.active .t-label { color: var(--accent-text); }
+  .toggle-card .t-sub { font-size: 10px; color: var(--text-muted); margin-top: 2px; line-height: 1.3; }
+
   .count-card { border: 1px solid var(--border); border-radius: 10px; padding: 14px 10px; text-align: center; cursor: pointer; transition: all 0.15s; background: var(--bg); }
   .count-card:hover { border-color: var(--border-hover); background: white; }
   .count-card.active { border-color: var(--accent); background: var(--accent-light); }
   .count-card .num { font-size: 22px; font-weight: 600; color: var(--text-primary); line-height: 1; }
   .count-card.active .num { color: var(--accent-text); }
   .count-card .lbl { font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+
   .page-range-hint { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
   .btn-generate { width: 100%; padding: 13px; background: var(--accent); color: white; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: opacity 0.15s; }
   .btn-generate:hover:not(:disabled) { opacity: 0.88; }
   .btn-generate:disabled { opacity: 0.35; cursor: not-allowed; }
-  .btn-generate svg { width: 18px; height: 18px; fill: white; }
   .loading-panel { display: none; text-align: center; padding: 3rem 1rem; }
   .spinner { width: 32px; height: 32px; border: 2.5px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 16px; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -51,7 +64,10 @@
   .dpp-top h2 { font-size: 20px; font-weight: 600; }
   .dpp-meta { font-size: 12px; color: var(--text-secondary); margin-top: 4px; }
   .dpp-meta span { margin-right: 14px; }
+  .dpp-badges { display: flex; gap: 6px; flex-wrap: wrap; }
   .dpp-badge { font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 6px; background: var(--accent-light); color: var(--accent-text); white-space: nowrap; }
+  .dpp-badge.diff { background: #FEF3C7; color: #92400E; }
+  .dpp-badge.exam { background: #EDE9FE; color: #5B21B6; }
   .instructions { background: var(--bg); border-radius: 8px; padding: 10px 14px; font-size: 12px; color: var(--text-secondary); margin-bottom: 1.25rem; border-left: 3px solid var(--accent); }
   .question { border: 1px solid var(--border); border-radius: 10px; padding: 1.1rem; margin-bottom: 10px; background: var(--surface); }
   .q-text { font-size: 14px; line-height: 1.55; margin-bottom: 12px; }
@@ -74,8 +90,8 @@
   .btn-ans, .btn-new { background: var(--bg); color: var(--text-primary); border: 1px solid var(--border); }
   .btn-ans:hover, .btn-new:hover { border-color: var(--border-hover); background: white; }
   .error-box { background: var(--danger-bg); border: 1px solid #E2B0B0; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: var(--danger); margin-top: 10px; }
-  .no-chapters { text-align: center; padding: 2rem; color: var(--text-muted); font-size: 14px; }
-  @media (max-width: 540px) { .grid-2, .options { grid-template-columns: 1fr; } .action-bar { grid-template-columns: 1fr; } }
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+  @media (max-width: 540px) { .grid-2, .options { grid-template-columns: 1fr; } .action-bar { grid-template-columns: 1fr; } .toggle-group.cols-4 { grid-template-columns: 1fr 1fr; } }
   @media print {
     body { background: white; padding: 1rem; }
     .brand, #setup-panel, .action-bar { display: none !important; }
@@ -122,6 +138,48 @@
     </div>
 
     <div class="card">
+      <div class="card-label">Exam Type</div>
+      <div class="toggle-group cols-3" id="exam-group">
+        <div class="toggle-card active" data-val="Foundation" onclick="selectToggle('exam-group', this)">
+          <div class="t-icon">📚</div>
+          <div class="t-label">Foundation</div>
+          <div class="t-sub">Class 9–10 basics</div>
+        </div>
+        <div class="toggle-card" data-val="NEET" onclick="selectToggle('exam-group', this)">
+          <div class="t-icon">🏥</div>
+          <div class="t-label">NEET</div>
+          <div class="t-sub">Medical entrance</div>
+        </div>
+        <div class="toggle-card" data-val="JEE" onclick="selectToggle('exam-group', this)">
+          <div class="t-icon">⚙️</div>
+          <div class="t-label">JEE</div>
+          <div class="t-sub">Engineering entrance</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="card-label">Difficulty</div>
+      <div class="toggle-group cols-3" id="diff-group">
+        <div class="toggle-card active" data-val="Easy" onclick="selectToggle('diff-group', this)">
+          <div class="t-icon">🟢</div>
+          <div class="t-label">Easy</div>
+          <div class="t-sub">Direct NCERT</div>
+        </div>
+        <div class="toggle-card" data-val="Intermediate" onclick="selectToggle('diff-group', this)">
+          <div class="t-icon">🟡</div>
+          <div class="t-label">Intermediate</div>
+          <div class="t-sub">Applied concepts</div>
+        </div>
+        <div class="toggle-card" data-val="Hard" onclick="selectToggle('diff-group', this)">
+          <div class="t-icon">🔴</div>
+          <div class="t-label">Hard</div>
+          <div class="t-sub">Tricky & multi-step</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
       <div class="card-label">Number of questions</div>
       <div class="grid-3">
         <div class="count-card" data-n="5" onclick="selectCount(5)"><div class="num">5</div><div class="lbl">Quick test</div></div>
@@ -132,7 +190,7 @@
     </div>
 
     <button class="btn-generate" id="gen-btn" onclick="generateDPP()" disabled>
-      <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="white"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
       Generate DPP
     </button>
   </div>
@@ -153,7 +211,11 @@
           <span id="dpp-pages"></span>
         </div>
       </div>
-      <div class="dpp-badge" id="dpp-count"></div>
+      <div class="dpp-badges">
+        <div class="dpp-badge" id="dpp-count"></div>
+        <div class="dpp-badge exam" id="dpp-exam"></div>
+        <div class="dpp-badge diff" id="dpp-diff"></div>
+      </div>
     </div>
     <div class="instructions">Each question carries 4 marks. Negative marking: −1 for wrong answer. Attempt all questions. Time: 15 minutes.</div>
     <div id="questions-container"></div>
@@ -171,11 +233,20 @@
 
 <script>
   let selectedCount = 10;
+  let selectedExam = 'Foundation';
+  let selectedDiff = 'Easy';
   let questions = [];
   let answered = {};
   let chapters = [];
 
   const loadingMsgs = ['Reading chapter content...', 'Identifying key concepts...', 'Crafting MCQ questions...', 'Building answer choices...', 'Almost ready...'];
+
+  function selectToggle(groupId, el) {
+    document.querySelectorAll(`#${groupId} .toggle-card`).forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    if (groupId === 'exam-group') selectedExam = el.dataset.val;
+    if (groupId === 'diff-group') selectedDiff = el.dataset.val;
+  }
 
   async function loadChapters() {
     try {
@@ -189,16 +260,13 @@
       }
       sel.innerHTML = '<option value="">-- Select a chapter --</option>' +
         chapters.map(ch => `<option value="${ch.id}">Ch. ${ch.chapter_number} — ${ch.chapter_name} (Class ${ch.class_num})</option>`).join('');
-    } catch (err) {
-      console.error('Failed to load chapters', err);
-    }
+    } catch (err) { console.error('Failed to load chapters', err); }
   }
 
   function onChapterChange() {
     const id = document.getElementById('chapter-select').value;
     const genBtn = document.getElementById('gen-btn');
     const hint = document.getElementById('page-hint');
-
     if (!id) {
       genBtn.disabled = true;
       hint.style.display = 'none';
@@ -206,7 +274,6 @@
       document.getElementById('page-to').value = '';
       return;
     }
-
     const chapter = chapters.find(c => c.id == id);
     if (chapter) {
       if (chapter.default_page_from) document.getElementById('page-from').value = chapter.default_page_from;
@@ -250,13 +317,13 @@
       formData.append('page_from', pageFrom);
       formData.append('page_to', pageTo);
       formData.append('count', selectedCount);
+      formData.append('exam_type', selectedExam);
+      formData.append('difficulty', selectedDiff);
 
       const res = await fetch('/generate', { method: 'POST', body: formData });
       clearInterval(msgInterval);
       const data = await res.json();
-
       if (!res.ok || data.error) throw new Error(data.error || 'Something went wrong');
-
       questions = data.questions;
       answered = {};
       renderDPP(data);
@@ -276,6 +343,8 @@
     document.getElementById('dpp-topic').textContent = `Topic: ${data.topic}`;
     document.getElementById('dpp-pages').textContent = `Pages: ${data.page_from}–${data.page_to}`;
     document.getElementById('dpp-count').textContent = `${questions.length} MCQs`;
+    document.getElementById('dpp-exam').textContent = data.exam_type;
+    document.getElementById('dpp-diff').textContent = data.difficulty;
 
     const container = document.getElementById('questions-container');
     container.innerHTML = '';

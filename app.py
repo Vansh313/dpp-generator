@@ -111,6 +111,8 @@ def generate():
         page_from = request.form.get("page_from")
         page_to = request.form.get("page_to")
         count = request.form.get("count", "10")
+        exam_type = request.form.get("exam_type", "Foundation")
+        difficulty = request.form.get("difficulty", "Easy")
 
         if not chapter_id:
             return jsonify({"error": "Please select a chapter"}), 400
@@ -134,26 +136,37 @@ def generate():
         pdf_bytes = supabase.storage.from_("chapters").download(chapter["file_name"])
         pdf_base64 = base64.standard_b64encode(pdf_bytes).decode("utf-8")
 
+        exam_instructions = {
+            "Foundation": "Questions should be straightforward, directly from NCERT concepts. Test basic definitions, simple reactions, and direct recall. Suitable for Class 9-10 foundation building.",
+            "NEET": "Questions should be NEET-style: concept-based, application-oriented. Include questions on mechanisms, exceptions, and comparisons. Match NEET difficulty and pattern exactly.",
+            "JEE": "Questions should be JEE-style: calculation-heavy, multi-concept, tricky options that test deep understanding. Include numerical problems and questions requiring multi-step reasoning. Match JEE Mains/Advanced difficulty."
+        }
+        difficulty_instructions = {
+            "Easy": "Direct one-step questions. Distractors should be clearly wrong to a prepared student.",
+            "Intermediate": "Mix of direct and application questions. Some questions require 2-step thinking. Distractors should be plausible.",
+            "Hard": "Challenging multi-step reasoning, exception-based knowledge, tricky application of concepts. Distractors should be very close to the correct answer."
+        }
+
         prompt = f"""You are an expert chemistry teacher creating a Daily Practice Problem (DPP) sheet for Class {class_num} students.
 
-The PDF attached is a chemistry textbook. The topic is: "{topic}", pages {page_from} to {page_to}.
+PDF: chemistry textbook. Topic: "{topic}", pages {page_from} to {page_to}.
 
-Your task:
-1. Read the content from pages {page_from} to {page_to} carefully.
-2. Generate EXACTLY {count} multiple choice questions (MCQs) based ONLY on the content of those pages.
-3. Each question must have exactly 4 options: (A), (B), (C), (D).
-4. Questions should test conceptual understanding, not just rote recall.
-5. Mix question types: definition-based, application-based, reaction-based, numerical (if applicable).
-6. Make distractors plausible but clearly wrong to an informed student.
+EXAM TYPE: {exam_type}
+{exam_instructions.get(exam_type, "")}
 
-Return ONLY a valid JSON object, no markdown, no explanation, no preamble. Format:
+DIFFICULTY: {difficulty}
+{difficulty_instructions.get(difficulty, "")}
+
+Generate EXACTLY {count} MCQs strictly following the exam type and difficulty above. Base questions ONLY on content from pages {page_from} to {page_to}. Each question must have exactly 4 options: (A), (B), (C), (D).
+
+Return ONLY a valid JSON object, no markdown, no explanation, no preamble:
 {{
   "questions": [
     {{
       "q": "Question text here",
       "options": ["A) ...", "B) ...", "C) ...", "D) ..."],
       "answer": "A",
-      "explanation": "Brief 1-line explanation of why this is correct"
+      "explanation": "Brief 1-line explanation"
     }}
   ]
 }}"""
@@ -190,7 +203,9 @@ Return ONLY a valid JSON object, no markdown, no explanation, no preamble. Forma
             "topic": topic,
             "class_num": class_num,
             "page_from": page_from,
-            "page_to": page_to
+            "page_to": page_to,
+            "exam_type": exam_type,
+            "difficulty": difficulty
         })
 
     except json.JSONDecodeError:
